@@ -3,8 +3,7 @@ import torch.nn as nn
 from .modules.mha_enncoder import MHAEncoder
 
 class VideoSparseTransformerEncoder(nn.Module):
-    def __init__(self, in_spatial_length,
-                 in_channels=64,
+    def __init__(self, in_channels=64,
                  hidden_size=128,
                  random_attention_probability=0.1,
 
@@ -14,7 +13,6 @@ class VideoSparseTransformerEncoder(nn.Module):
                  ):
         super(VideoSparseTransformerEncoder, self).__init__()
         self.in_channels = in_channels
-        self.in_spatial_length = in_spatial_length
         self.hidden_size = hidden_size
         self.random_attention_probability = random_attention_probability
 
@@ -51,16 +49,19 @@ class VideoSparseTransformerEncoder(nn.Module):
 
     def forward(self, input, **kwargs):
         # input - [B, L, H * W, C]
+        in_spatial_length = input.size(2)
         sequence_of_img_embs = input.view(input.size(0) * input.size(1), -1, self.in_channels)
         sequence_of_img_embs = self.to_hidden_dim(sequence_of_img_embs)
         # input - [B, L * H * W, HiddenSize]
         sequence_of_img_embs = sequence_of_img_embs.view(input.size(0), -1, self.hidden_size)
-        attention = self.make_positional_attention(in_spatial_length=self.in_spatial_length,
+        attention = self.make_positional_attention(in_spatial_length=in_spatial_length,
                                                    seq_length=input.size(1),
                                                    random_attention_probability=self.random_attention_probability)
         attention = attention.to(input.get_device())
-        return self.encoder(((sequence_of_img_embs, sequence_of_img_embs, sequence_of_img_embs), attention)), \
-               sequence_of_img_embs[:, :self.in_spatial_length]
+        # returns query and weights
+        contexts, _ = self.encoder(((sequence_of_img_embs, sequence_of_img_embs, sequence_of_img_embs), attention))
+        return contexts, \
+               sequence_of_img_embs[:, :in_spatial_length] # first frame used as query to decoder
 
 
 

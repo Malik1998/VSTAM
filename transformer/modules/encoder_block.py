@@ -35,9 +35,13 @@ class EncoderBlock(nn.Module):
 
     def forward(self, x, **kwargs):
         # Attention part
-        x, mask = x
+        # if it first block
+        if len(x) == 3:
+            x, mask, _ = x
+        else:
+            x, mask = x
         q, k, v = x
-        attn_out, _ = self.self_attn(q, k, v, attn_mask=mask, need_weights=False)
+        attn_out, weights = self.self_attn(q, k, v, attn_mask=mask)
         q = q + self.dropout(attn_out)
         q = self.norm1(q)
 
@@ -45,4 +49,4 @@ class EncoderBlock(nn.Module):
         linear_out = self.linear_net(q)
         q = q + self.dropout(linear_out)
         q = self.norm2(q)
-        return (q, k, v),mask
+        return (q, k, v), mask, weights

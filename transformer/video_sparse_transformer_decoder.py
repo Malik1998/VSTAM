@@ -1,10 +1,9 @@
 import torch.nn as nn
 from .modules.mha_enncoder import MHAEncoder
+import math
 
 class VideoSparseTransformerDecoder(nn.Module):
     def __init__(self,
-                 width=8,
-                 height=8,
                  hidden_size=128,
                  decoder_layers_count=5,
                  decoder_num_heads=8,
@@ -12,17 +11,24 @@ class VideoSparseTransformerDecoder(nn.Module):
                  decoder_out=128,
                  ):
         super(VideoSparseTransformerDecoder, self).__init__()
-        self.width = width
-        self.height = height
         self.decoder_mha = MHAEncoder(hidden_size=hidden_size, num_heads=decoder_num_heads,
                                   dropout=decoder_dropout, layers_count=decoder_layers_count)
         self.out = nn.Conv2d(hidden_size, decoder_out, kernel_size=1)
 
-    def forward(self, input, query, **kwargs):
+    def forward(self, context, query, **kwargs):
         # input - [B, L * HW, hidden_size]
-        decoder_mha = self.decoder_mha(((query, input, input), None))
-        # use_somehow to memory saving
-        decoder_mha = decoder_mha.view(query.shape[0], -1, self.width, self.height)
+
+        # don't send the mask
+        decoder_mha, weights = self.decoder_mha(((query, context, context), None))
+        # use somehow weights to memory saving (in the original paper we use weights
+        # of decoder to choose best frames to save)
+
+
+        # let's consider image to be square
+        h_mult_w_shape = query.shape[1]
+        W = int(math.sqrt(h_mult_w_shape))
+        H = h_mult_w_shape // W
+        decoder_mha = decoder_mha.view(query.shape[0], -1, W, H)
         out = self.out(decoder_mha)
         return out
 

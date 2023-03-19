@@ -13,5 +13,5 @@ class MHAEncoder(nn.Module):
         )
 
     def forward(self, input, **kwargs):
-        # self.seq(input) -> ((q, k, v), mask)
-        return self.seq(input)[0][0]
+        # self.seq(input) -> ((q, k, v), mask, weights)
+        return self.seq(input)[0][0], self.seq(input)[2][0]

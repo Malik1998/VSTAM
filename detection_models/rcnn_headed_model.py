@@ -1,5 +1,5 @@
 import torch
-from base_backbone.base_backbone import get_model_by_name
+from base_backbone.base_backbone import BaseBackbone
 from detectron2.modeling import BACKBONE_REGISTRY, Backbone, ShapeSpec
 
 
@@ -7,10 +7,12 @@ from detectron2.modeling import BACKBONE_REGISTRY, Backbone, ShapeSpec
 class RCNNHeadedModel(Backbone):
     def __init__(self, cfg, input_shape):
         super().__init__()
-        self.res4 = get_model_by_name("BaseBackbone")()
-        self.out_channels = 2048
+        self.res4 = BaseBackbone()
+        self.out_channels = self.res4.feature_embedder_out
 
     def forward(self, image, imgs_suplementary=None):
+        # Because we can send only one image to detectron2 to default detection
+        # so we sent first image and concatenate previous frames here
         concated = []
         for main_img, stacked_img in zip(image, imgs_suplementary):
             concated.append(torch.unsqueeze(torch.cat([
@@ -19,5 +21,5 @@ class RCNNHeadedModel(Backbone):
         return {"res4": self.res4(concated)}
 
     def output_shape(self):
-        return {"res4": ShapeSpec(channels=2048 * 1, stride=16)}
+        return {"res4": ShapeSpec(channels=2048, stride=16)}
 
