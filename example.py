@@ -1,10 +1,8 @@
 import torch
-from detectron2 import model_zoo
-from detectron2.engine import DefaultTrainer
 from detectron2.config import get_cfg
-from detectron2.modeling import build_model, build_backbone
+from detectron2.modeling import build_model
 from detectron2.structures.image_list import ImageList
-from rcnn_headed_model import *
+from detection_models.rcnn_headed_model import *
 
 cfg = get_cfg()
 # cfg.merge_from_file(model_zoo.get_config_file("COCO-Detection/faster_rcnn_R_50_FPN_3x.yaml"))

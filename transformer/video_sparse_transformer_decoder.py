@@ -1,6 +1,5 @@
-import torch
 import torch.nn as nn
-from mha_enncoder import MHAEncoder
+from .modules.mha_enncoder import MHAEncoder
 
 class VideoSparseTransformerDecoder(nn.Module):
     def __init__(self,

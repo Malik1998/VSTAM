@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from identify import IdentifyModel
+from ..modules.identify import IdentifyModel
 
 class Resnet50Custom(nn.Module):
     def __init__(self, pretrained=True, **kwargs):

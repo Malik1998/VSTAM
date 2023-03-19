@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
-from video_sparse_transformer_encoder import VideoSparseTransformerEncoder
-from video_sparse_transformer_decoder import VideoSparseTransformerDecoder
-from resnet import Resnet50Custom
+from transformer.video_sparse_transformer_encoder import VideoSparseTransformerEncoder
+from transformer.video_sparse_transformer_decoder import VideoSparseTransformerDecoder
+from .models.resnet import Resnet50Custom
 
 dict_of_iternal_models = {
     "VideoSparseTransformerEncoder": VideoSparseTransformerEncoder,

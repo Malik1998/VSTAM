@@ -1,6 +1,5 @@
-import torch
 import torch.nn as nn
-from encoder_block import EncoderBlock
+from .encoder_block import EncoderBlock
 
 class MHAEncoder(nn.Module):
     def __init__(self, hidden_size=128, num_heads=8, dropout=0.1, layers_count=5, **kwargs):

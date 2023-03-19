@@ -1,9 +1,7 @@
 import torch
-import torch.nn as nn
-from base_model import get_model_by_name
-from identify import IdentifyModel
+from base_backbone.base_backbone import get_model_by_name
 from detectron2.modeling import BACKBONE_REGISTRY, Backbone, ShapeSpec
-from detectron2.structures.image_list import ImageList
+
 
 @BACKBONE_REGISTRY.register()
 class RCNNHeadedModel(Backbone):
